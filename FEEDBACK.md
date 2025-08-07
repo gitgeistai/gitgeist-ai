@@ -12,7 +12,7 @@ We'd love to hear from you! Your feedback helps make Gitgeist better.
 - 👎 Poor - needs work
 - 💔 Terrible - major issues
 
-[Create an issue](https://github.com/your-username/gitgeist-ai/issues/new/choose) and let us know!
+[Create an issue](https://github.com/gitgeistai/gitgeist-ai/issues/new/choose) and let us know!
 
 ## Detailed Feedback
 
@@ -40,12 +40,12 @@ Interested in a 15-minute chat about your experience? We'd love to learn more!
 - **When**: Flexible scheduling
 - **Format**: Video call or async
 - **Incentive**: Early access to new features
-- **Contact**: [Create an issue](https://github.com/your-username/gitgeist-ai/issues) with "Interview" label
+- **Contact**: [Create an issue](https://github.com/gitgeistai/gitgeist-ai/issues) with "Interview" label
 
 ## Community
 
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/gitgeist-ai/discussions)
-- **Issues**: [Bug Reports & Feature Requests](https://github.com/your-username/gitgeist-ai/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/gitgeistai/gitgeist-ai/discussions)
+- **Issues**: [Bug Reports & Feature Requests](https://github.com/gitgeistai/gitgeist-ai/issues)
 - **Twitter**: [@your_handle](https://twitter.com/your_handle) - Share your experience!
 
 ## Analytics (Privacy-Friendly)
@@ -66,7 +66,7 @@ Using Gitgeist successfully? We'd love to feature your story!
 - Any interesting commit messages generated?
 - Team adoption experiences?
 
-Share in [Discussions](https://github.com/your-username/gitgeist-ai/discussions) or tag us on social media!
+Share in [Discussions](https://github.com/gitgeistai/gitgeist-ai/discussions) or tag us on social media!
 
 ---
 

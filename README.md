@@ -38,7 +38,7 @@ ollama serve
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/gitgeist-ai.git
+git clone https://github.com/gitgeistai/gitgeist-ai.git
 cd gitgeist-ai
 
 # Install dependencies
@@ -148,7 +148,7 @@ Configuration is stored in `.gitgeist.json`:
 
 ```bash
 # Clone and install in development mode
-git clone https://github.com/your-username/gitgeist-ai.git
+git clone https://github.com/gitgeistai/gitgeist-ai.git
 cd gitgeist-ai
 pip install -e ".[dev]"
 

@@ -5,7 +5,7 @@ Thank you for your interest in contributing to Gitgeist! 🎉
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/your-username/gitgeist-ai.git`
+2. Clone your fork: `git clone https://github.com/gitgeistai/gitgeist-ai.git`
 3. Create a virtual environment: `python -m venv .venv`
 4. Activate it: `source .venv/bin/activate` (or `.venv\Scripts\activate` on Windows)
 5. Install in development mode: `pip install -e ".[dev]"`
@@ -36,7 +36,7 @@ Thank you for your interest in contributing to Gitgeist! 🎉
 ## Areas for Contribution
 
 ### 🐛 Bug Fixes
-- Check [open issues](https://github.com/your-username/gitgeist-ai/issues) labeled `bug`
+- Check [open issues](https://github.com/gitgeistai/gitgeist-ai/issues) labeled `bug`
 - Reproduce the issue and create a fix
 - Add tests to prevent regression
 
@@ -60,7 +60,7 @@ Thank you for your interest in contributing to Gitgeist! 🎉
 
 ## Questions?
 
-- Open an [issue](https://github.com/your-username/gitgeist-ai/issues) for questions
+- Open an [issue](https://github.com/gitgeistai/gitgeist-ai/issues) for questions
 - Join discussions in the repository
 - Check existing documentation
 

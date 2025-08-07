@@ -16,7 +16,7 @@
 ```bash
 # Create repository on GitHub
 # Push code
-git remote add origin https://github.com/your-username/gitgeist-ai.git
+git remote add origin https://github.com/gitgeistai/gitgeist-ai.git
 git branch -M main
 git push -u origin main
 ```
@@ -81,7 +81,7 @@ gitgeist watch
 
 Built with Python, Ollama, and Tree-sitter. MIT licensed.
 
-GitHub: https://github.com/your-username/gitgeist-ai
+GitHub: https://github.com/gitgeistai/gitgeist-ai
 ```
 
 ### 📊 Success Metrics

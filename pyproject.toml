@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "gitgeist"
 version = "0.1.0"
 description = "Autonomous AI Git agent for intelligent code management"
-authors = [{name = "Your Name", email = "your.email@example.com"}]
+authors = [{name = "Gitgeist AI", email = "hello@gitgeist.ai"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
@@ -29,6 +29,12 @@ dev = [
     "isort>=5.12.0",
     "mypy>=1.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/gitgeistai/gitgeist-ai"
+Repository = "https://github.com/gitgeistai/gitgeist-ai"
+Issues = "https://github.com/gitgeistai/gitgeist-ai/issues"
+Discussions = "https://github.com/gitgeistai/gitgeist-ai/discussions"
 
 [project.scripts]
 gitgeist = "gitgeist.cli.commands:app"

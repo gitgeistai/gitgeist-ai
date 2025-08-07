@@ -443,7 +443,7 @@ def version():
     console.print("  • Semantic code analysis (Tree-sitter)")
     console.print("  • Conventional commit generation")
     console.print("  • Real-time file watching")
-    console.print("\n[dim]Repository:[/dim] https://github.com/your-username/gitgeist-ai")
+    console.print("\n[dim]Repository:[/dim] https://github.com/gitgeistai/gitgeist-ai")
     console.print("[dim]License:[/dim] MIT")
 
 if __name__ == "__main__":
