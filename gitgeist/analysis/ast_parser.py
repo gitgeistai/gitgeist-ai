@@ -21,7 +21,8 @@ except ImportError:
         "⚠️  Tree-sitter not available. Install with: pip install tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript"
     )
 
-from gitgeist.utils.exceptions import ParseError
+from gitgeist.analysis.language_detector import LanguageDetector
+from gitgeist.utils.exceptions import AnalysisError
 from gitgeist.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -33,6 +34,7 @@ class GitgeistASTParser:
     def __init__(self):
         self.languages = {}
         self.parsers = {}
+        self.detector = LanguageDetector()
 
         if TREE_SITTER_AVAILABLE:
             try:
@@ -58,18 +60,15 @@ class GitgeistASTParser:
             parser.language = language
             self.parsers[lang_name] = parser
 
-    def detect_language(self, filepath: str) -> Optional[str]:
-        """Detect programming language from file extension"""
-        ext_map = {
-            ".py": "python",
-            ".js": "javascript",
-            ".jsx": "javascript",
-            ".ts": "typescript",
-            ".tsx": "typescript",
-        }
-
-        suffix = Path(filepath).suffix.lower()
-        return ext_map.get(suffix)
+    def detect_language(self, filepath: str, content: str = None) -> Optional[str]:
+        """Detect programming language using enhanced detector"""
+        language = self.detector.detect_language(filepath, content)
+        
+        # Only return if we have Tree-sitter support
+        if language and language in self.languages:
+            return language
+        
+        return None
 
     def parse_file(self, filepath: str) -> Optional[Tuple[str, Node]]:
         """Parse a file and return (language, root_node)"""
@@ -218,17 +217,41 @@ class GitgeistASTParser:
 
         return imports
 
-    def analyze_file_structure(self, filepath: str) -> Optional[Dict]:
+    def analyze_file_structure(self, filepath: str) -> Dict:
         """Analyze file structure and return summary"""
+        try:
+            # Read content for better language detection
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            logger.error(f"Failed to read {filepath}: {e}")
+            return {"error": f"Cannot read file: {e}"}
+        
+        # Detect language with content
+        language = self.detect_language(filepath, content)
+        
+        # Basic file info even if not parseable
+        base_info = {
+            "filepath": filepath,
+            "language": self.detector.detect_language(filepath, content),
+            "category": self.detector.get_file_category(filepath),
+            "supported": language is not None,
+            "lines_of_code": len(content.splitlines()),
+            "file_size": len(content)
+        }
+        
+        if not language:
+            return base_info
+        
         result = self.parse_file(filepath)
         if not result:
-            return None
+            base_info["error"] = "Parse failed"
+            return base_info
 
         language, root_node = result
 
         return {
-            "filepath": filepath,
-            "language": language,
+            **base_info,
             "functions": self.extract_functions(root_node, language),
             "classes": self.extract_classes(root_node, language),
             "imports": self.extract_imports(root_node, language),
