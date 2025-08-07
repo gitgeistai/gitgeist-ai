@@ -3,29 +3,67 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-*.egg
-*.egg-info/
-dist/
+.Python
 build/
-.pytest_cache/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Gitgeist specific
-data/logs/*.log
-data/memory/*.json
-.gitgeist.json
-
-# Environment
+# Virtual environments
 .env
-.venv/
-venv/
+.venv
 env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Logs
+*.log
+logs/
+data/logs/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Gitgeist specific
+.gitgeist.json
+data/
+
+# Temporary files
+*.tmp
+*.temp

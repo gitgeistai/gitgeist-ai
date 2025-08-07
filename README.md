@@ -1,5 +1,8 @@
 # 🧠 Gitgeist - Autonomous AI Git Agent
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Gitgeist is an intelligent, autonomous Git agent that uses local LLMs to understand your code changes semantically and generate meaningful commit messages automatically.
 
 ## ✨ Features
@@ -34,7 +37,11 @@ ollama serve
 ### Installation
 
 ```bash
-# Install from this directory
+# Clone the repository
+git clone https://github.com/your-username/gitgeist-ai.git
+cd gitgeist-ai
+
+# Install dependencies
 pip install -e .
 
 # Or install development version
@@ -65,6 +72,7 @@ gitgeist commit
 - `gitgeist status` - Show repository and Gitgeist status
 - `gitgeist analyze` - Analyze current changes
 - `gitgeist config` - Manage configuration
+- `gitgeist version` - Show version information
 
 ### Examples
 
@@ -78,11 +86,14 @@ gitgeist watch
 # Generate commit message without committing
 gitgeist commit --dry-run
 
-# Commit with custom message
-gitgeist commit -m "feat: add user authentication"
+# Commit with auto-approval
+gitgeist commit --auto
 
 # Show what Gitgeist detected
 gitgeist analyze
+
+# View current status
+gitgeist status
 ```
 
 ## ⚙️ Configuration
@@ -95,33 +106,119 @@ Configuration is stored in `.gitgeist.json`:
   "commit_style": "conventional",
   "llm_model": "llama3.2",
   "llm_host": "http://localhost:11434",
-  "temperature": 0.3
+  "temperature": 0.3,
+  "log_level": "INFO",
+  "watch_paths": ["."],
+  "ignore_patterns": [
+    ".git/*",
+    "node_modules/*",
+    "*.pyc",
+    "__pycache__/*",
+    ".env",
+    "venv/*",
+    ".venv/*"
+  ]
 }
 ```
 
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autonomous_mode` | boolean | `false` | Enable automatic commits |
+| `commit_style` | string | `"conventional"` | Commit message style (`conventional`, `semantic`, `default`) |
+| `llm_model` | string | `"llama3.2"` | Ollama model to use |
+| `llm_host` | string | `"http://localhost:11434"` | Ollama server URL |
+| `temperature` | number | `0.3` | LLM temperature (0.0-2.0) |
+| `log_level` | string | `"INFO"` | Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+| `watch_paths` | array | `["."]` | Directories to watch |
+| `ignore_patterns` | array | See above | File patterns to ignore |
+
 ## 🧠 How It Works
 
-1. **File Watching**: Monitors your repository for changes
-2. **AST Analysis**: Parses code to understand semantic changes
+1. **File Watching**: Monitors your repository for changes using Python's watchdog
+2. **AST Analysis**: Parses code using Tree-sitter to understand semantic changes
 3. **Change Detection**: Identifies functions/classes added, removed, or modified
-4. **LLM Generation**: Uses local LLM to generate meaningful commit messages
-5. **Auto Commit**: Optionally commits changes automatically
+4. **LLM Generation**: Uses local Ollama LLM to generate meaningful commit messages
+5. **Auto Commit**: Optionally commits changes automatically in autonomous mode
 
 ## 🛠️ Development
 
 ### Setup Development Environment
 
 ```bash
+# Clone and install in development mode
+git clone https://github.com/your-username/gitgeist-ai.git
+cd gitgeist-ai
 pip install -e ".[dev]"
 
 # Run tests
 pytest
+
+# Run tests with coverage
+pytest --cov=gitgeist
 
 # Format code
 black .
 isort .
 ```
 
+### Project Structure
+
+```
+gitgeist-ai/
+├── gitgeist/
+│   ├── ai/                 # LLM integration
+│   │   ├── llm_client.py   # Ollama client
+│   │   ├── commit_generator.py
+│   │   └── prompts.py      # LLM prompts
+│   ├── analysis/           # Code analysis
+│   │   └── ast_parser.py   # Tree-sitter integration
+│   ├── cli/                # Command-line interface
+│   │   └── commands.py     # CLI commands
+│   ├── core/               # Core functionality
+│   │   ├── config.py       # Configuration management
+│   │   ├── git_handler.py  # Git operations
+│   │   ├── watcher.py      # File watching
+│   │   └── schema.py       # Config validation
+│   └── utils/              # Utilities
+│       ├── logger.py       # Logging setup
+│       └── exceptions.py   # Custom exceptions
+├── tests/                  # Test suite
+├── pyproject.toml         # Project configuration
+└── README.md              # This file
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Ollama](https://ollama.ai/) for local LLM inference
+- [Tree-sitter](https://tree-sitter.github.io/) for semantic code parsing
+- [Typer](https://typer.tiangolo.com/) for the CLI framework
+- [Rich](https://rich.readthedocs.io/) for beautiful terminal output
+
+## 🔮 Roadmap
+
+- [ ] RAG memory for better context understanding
+- [ ] GitHub integration for PR/issue management
+- [ ] VS Code extension
+- [ ] Multi-repository support
+- [ ] Team collaboration features
+- [ ] Web dashboard for commit insights
+
+---
+
+**Made with ❤️ by developers, for developers**
