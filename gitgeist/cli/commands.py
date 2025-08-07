@@ -326,6 +326,19 @@ def status():
                 console.print("\n📜 [bold]Recent Commits:[/bold]")
                 for commit in recent_commits:
                     console.print(f"  • {commit['date']} - {commit['message'][:60]}...")
+            
+            # Memory stats
+            try:
+                from gitgeist.memory.vector_store import GitgeistMemory
+                memory = GitgeistMemory(config.data_dir)
+                stats = memory.get_memory_stats()
+                
+                console.print("\n🧠 [bold]Memory Stats:[/bold]")
+                console.print(f"  • Commits stored: {stats['commits_stored']}")
+                console.print(f"  • Files tracked: {stats['files_tracked']}")
+                console.print(f"  • Database size: {stats['db_size_mb']:.1f} MB")
+            except Exception as e:
+                console.print(f"\n🧠 [bold]Memory:[/bold] Not available ({e})")
 
             # Ollama status
             console.print("\n🔌 [bold]Ollama Status:[/bold]")

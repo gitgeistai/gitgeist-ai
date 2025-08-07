@@ -9,6 +9,8 @@ from typing import Dict, List, Optional
 from gitgeist.ai.llm_client import OllamaClient
 from gitgeist.ai.prompts import COMMIT_PROMPTS
 from gitgeist.core.config import GitgeistConfig
+from gitgeist.memory.vector_store import GitgeistMemory
+from gitgeist.memory.planner import GitgeistPlanner
 from gitgeist.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -20,6 +22,8 @@ class CommitGenerator:
     def __init__(self, config: GitgeistConfig):
         self.config = config
         self.llm_client = OllamaClient(config)
+        self.memory = GitgeistMemory(config.data_dir)
+        self.planner = GitgeistPlanner(self.memory)
 
     def _analyze_git_status(self) -> Dict:
         """Get current git status and changes"""

@@ -1,0 +1,1 @@
+# gitgeist/memory/__init__.py
