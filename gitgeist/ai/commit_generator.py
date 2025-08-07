@@ -9,6 +9,9 @@ from typing import Dict, List, Optional
 from gitgeist.ai.llm_client import OllamaClient
 from gitgeist.ai.prompts import COMMIT_PROMPTS
 from gitgeist.core.config import GitgeistConfig
+from gitgeist.core.templates import CommitTemplateManager
+from gitgeist.core.branch_manager import BranchManager
+from gitgeist.core.performance import OptimizedAnalyzer
 from gitgeist.memory.vector_store import GitgeistMemory
 from gitgeist.memory.planner import GitgeistPlanner
 from gitgeist.utils.logger import get_logger
@@ -24,6 +27,9 @@ class CommitGenerator:
         self.llm_client = OllamaClient(config)
         self.memory = GitgeistMemory(config.data_dir)
         self.planner = GitgeistPlanner(self.memory)
+        self.templates = CommitTemplateManager()
+        self.branch_manager = BranchManager()
+        self.analyzer = OptimizedAnalyzer()
 
     def _analyze_git_status(self) -> Dict:
         """Get current git status and changes"""
@@ -167,10 +173,14 @@ class CommitGenerator:
     async def _generate_commit_message(self, context: Dict) -> str:
         """Generate commit message using LLM with rich context and RAG"""
 
+        # Get branch-aware commit style
+        branch_style = self.branch_manager.get_commit_style()
+        commit_style = branch_style if branch_style != self.config.commit_style else self.config.commit_style
+        
         # Choose prompt template based on commit style
-        if self.config.commit_style == "conventional":
+        if commit_style == "conventional":
             prompt_template = COMMIT_PROMPTS["conventional"]
-        elif self.config.commit_style == "semantic":
+        elif commit_style == "semantic":
             prompt_template = COMMIT_PROMPTS["semantic"]
         else:
             prompt_template = COMMIT_PROMPTS["default"]
@@ -217,6 +227,19 @@ class CommitGenerator:
 
             # Post-process commit message
             commit_message = self._clean_commit_message(commit_message)
+            
+            # Validate against branch rules
+            if not self.branch_manager.validate_commit_message(commit_message):
+                suggestions = self.branch_manager.suggest_commit_improvements(commit_message)
+                logger.warning(f"Commit message validation failed. Suggestions: {suggestions}")
+                # Try to auto-fix with templates
+                files_changed = [f["path"] for f in context["file_details"]]
+                template_message = self.templates.create_commit_message(
+                    commit_style, context["semantic_summary"], files_changed
+                )
+                if self.branch_manager.validate_commit_message(template_message):
+                    commit_message = template_message
+                    logger.info("Auto-fixed commit message using templates")
 
             # Store this commit in memory for future RAG
             self._store_commit_in_memory(commit_message, context)
@@ -356,8 +379,13 @@ class CommitGenerator:
             return f"chore: update {semantic['total_files']} files"
 
     async def create_commit(self, message: str, add_all: bool = True) -> bool:
-        """Actually create the git commit"""
+        """Actually create the git commit with branch awareness"""
         try:
+            # Check if branch allows auto-commit
+            if not self.branch_manager.should_auto_commit():
+                logger.warning("Auto-commit disabled for this branch")
+                return False
+            
             # Add files if requested
             if add_all:
                 subprocess.run(["git", "add", "."], check=True)

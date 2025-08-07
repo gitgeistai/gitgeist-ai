@@ -260,6 +260,20 @@ def commit(
                                 console.print(f"  • {commit['message']} (similarity: {similarity:.2f})")
                 except Exception:
                     pass
+                
+                # Show branch info
+                branch_type = generator.branch_manager.get_branch_type()
+                current_branch = generator.branch_manager.get_current_branch()
+                console.print(f"\n🌳 [bold]Branch:[/bold] {current_branch} ({branch_type})")
+                
+                # Show performance stats
+                try:
+                    perf_stats = generator.analyzer.get_performance_stats()
+                    cache_hits = perf_stats['cache']['entries']
+                    if cache_hits > 0:
+                        console.print(f"⚡ Cache: {cache_hits} entries")
+                except Exception:
+                    pass
 
             else:
                 # Generate and optionally commit
@@ -383,6 +397,35 @@ def status():
                     
             except Exception as e:
                 console.print(f"\n🧠 [bold]Memory:[/bold] Not available ({e})")
+            
+            # Branch info
+            try:
+                from gitgeist.core.branch_manager import BranchManager
+                branch_mgr = BranchManager()
+                current_branch = branch_mgr.get_current_branch()
+                branch_type = branch_mgr.get_branch_type()
+                is_protected = branch_mgr.is_protected_branch()
+                
+                console.print("\n🌳 [bold]Branch Info:[/bold]")
+                console.print(f"  • Current: {current_branch} ({branch_type})")
+                console.print(f"  • Protected: {'Yes' if is_protected else 'No'}")
+                console.print(f"  • Auto-commit: {'No' if is_protected else 'Yes'}")
+                
+            except Exception as e:
+                console.print(f"\n🌳 [bold]Branch:[/bold] Not available ({e})")
+            
+            # Performance stats
+            try:
+                from gitgeist.core.performance import OptimizedAnalyzer
+                analyzer = OptimizedAnalyzer()
+                perf_stats = analyzer.get_performance_stats()
+                
+                console.print("\n⚡ [bold]Performance:[/bold]")
+                console.print(f"  • Cache entries: {perf_stats['cache']['entries']}")
+                console.print(f"  • Cache size: {perf_stats['cache']['total_size_mb']:.1f} MB")
+                
+            except Exception as e:
+                console.print(f"\n⚡ [bold]Performance:[/bold] Not available ({e})")
 
             # Ollama status
             console.print("\n🔌 [bold]Ollama Status:[/bold]")
@@ -570,14 +613,16 @@ def doctor():
 @app.command()
 def version():
     """Show Gitgeist version and system info"""
-    console.print("🧠 [bold blue]Gitgeist[/bold blue] v0.1.0")
+    console.print("🧠 [bold blue]Gitgeist[/bold blue] v0.2.0")
     console.print("Autonomous AI Git Agent")
     console.print("\n[dim]Features:[/dim]")
     console.print("  • Local LLM integration (Ollama)")
-    console.print("  • Semantic code analysis (Tree-sitter)")
-    console.print("  • Conventional commit generation")
-    console.print("  • Real-time file watching")
-    console.print("  • RAG memory system")
+    console.print("  • Semantic code analysis (29+ languages)")
+    console.print("  • RAG memory system with vector embeddings")
+    console.print("  • Branch-aware commit strategies")
+    console.print("  • Performance optimization & caching")
+    console.print("  • Customizable commit templates")
+    console.print("  • Error handling & recovery")
     console.print("\n[dim]Repository:[/dim] https://github.com/gitgeistai/gitgeist-ai")
     console.print("[dim]License:[/dim] MIT")
 
