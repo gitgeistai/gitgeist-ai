@@ -1,7 +1,7 @@
 # gitgeist/ai/prompts.py
 
 COMMIT_PROMPTS = {
-    'conventional': """You are an expert Git commit message generator. Generate a conventional commit message based on the semantic code changes below.
+    "conventional": """You are an expert Git commit message generator. Generate a conventional commit message based on the semantic code changes below.
 
 RULES:
 - Use conventional commit format: type(scope): description
@@ -27,8 +27,7 @@ TEXT DIFF STATS:
 - Lines removed: -{deletions}
 
 Generate ONLY the commit message, no explanation:""",
-
-    'semantic': """Generate a semantic commit message that clearly describes the code changes. Focus on the functional impact, not just file changes.
+    "semantic": """Generate a semantic commit message that clearly describes the code changes. Focus on the functional impact, not just file changes.
 
 ANALYSIS:
 - Files: {total_files} changed ({code_files} code files)
@@ -45,8 +44,7 @@ CHANGES BY FILE:
 STATS: +{insertions}/-{deletions} lines
 
 Write a clear, action-oriented commit message that explains what the code now does differently:""",
-
-    'default': """Generate a clear, concise Git commit message for these changes:
+    "default": """Generate a clear, concise Git commit message for these changes:
 
 Summary:
 - {total_files} files changed ({code_files} code files)
@@ -59,11 +57,11 @@ Files modified:
 
 Changes: +{insertions}/-{deletions} lines
 
-Commit message:"""
+Commit message:""",
 }
 
 SYSTEM_PROMPTS = {
-    'commit_generator': """You are GitGeist, an AI assistant specialized in generating meaningful Git commit messages. 
+    "commit_generator": """You are GitGeist, an AI assistant specialized in generating meaningful Git commit messages. 
 
 Your role:
 - Analyze semantic code changes (functions, classes, imports)
@@ -73,8 +71,7 @@ Your role:
 - Never include explanations, only the commit message
 
 Always respond with just the commit message, nothing else.""",
-
-    'code_analyzer': """You are a code analysis expert. Your role is to understand code changes at a semantic level and explain their functional impact.
+    "code_analyzer": """You are a code analysis expert. Your role is to understand code changes at a semantic level and explain their functional impact.
 
 Focus on:
 - What new functionality was added
@@ -82,39 +79,41 @@ Focus on:
 - What was refactored or reorganized
 - Impact on the overall system
 
-Be precise and technical, but accessible."""
+Be precise and technical, but accessible.""",
 }
 
 # Example commit message patterns
 COMMIT_EXAMPLES = {
-    'new_feature': "feat(auth): add user login with JWT authentication",
-    'bug_fix': "fix(api): resolve null pointer exception in user service",
-    'refactor': "refactor(database): extract connection pooling to separate module",
-    'documentation': "docs(readme): add installation and usage instructions",
-    'test': "test(auth): add unit tests for password validation",
-    'chore': "chore(deps): update dependencies to latest versions"
+    "new_feature": "feat(auth): add user login with JWT authentication",
+    "bug_fix": "fix(api): resolve null pointer exception in user service",
+    "refactor": "refactor(database): extract connection pooling to separate module",
+    "documentation": "docs(readme): add installation and usage instructions",
+    "test": "test(auth): add unit tests for password validation",
+    "chore": "chore(deps): update dependencies to latest versions",
 }
+
 
 def get_commit_type_from_changes(changes: dict) -> str:
     """Determine commit type based on semantic changes"""
-    
-    if changes.get('functions_added') or changes.get('classes_added'):
-        return 'feat'
-    elif changes.get('functions_removed') or changes.get('classes_removed'):
-        return 'refactor'
-    elif changes.get('functions_modified') or changes.get('classes_modified'):
-        return 'refactor'
-    elif changes.get('imports_changed'):
-        return 'refactor'
+
+    if changes.get("functions_added") or changes.get("classes_added"):
+        return "feat"
+    elif changes.get("functions_removed") or changes.get("classes_removed"):
+        return "refactor"
+    elif changes.get("functions_modified") or changes.get("classes_modified"):
+        return "refactor"
+    elif changes.get("imports_changed"):
+        return "refactor"
     else:
-        return 'chore'
+        return "chore"
+
 
 def format_function_list(functions: list, max_items: int = 3) -> str:
     """Format function list for prompts"""
     if not functions:
-        return 'none'
-    
+        return "none"
+
     if len(functions) <= max_items:
-        return ', '.join(functions)
+        return ", ".join(functions)
     else:
         return f"{', '.join(functions[:max_items])}, +{len(functions) - max_items} more"

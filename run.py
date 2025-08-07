@@ -14,36 +14,38 @@ from gitgeist.core.config import GitgeistConfig
 from gitgeist.core.watcher import GitgeistWatcher
 from gitgeist.utils.logger import setup_logger
 
+
 def handle_shutdown(signum, frame):
     """Handle graceful shutdown"""
     print("\n🛑 Shutting down Gitgeist...")
     sys.exit(0)
 
+
 async def main():
     """Main application entry point"""
     # Setup
     signal.signal(signal.SIGINT, handle_shutdown)
-    
+
     # Load configuration
     try:
         config = GitgeistConfig.load()
     except FileNotFoundError:
         print("❌ No configuration found. Run 'gitgeist init' first.")
         sys.exit(1)
-    
+
     logger = setup_logger(config.log_file)
     logger.info("🧠 Starting Gitgeist AI Git Agent")
-    
+
     # Initialize components
     watcher = GitgeistWatcher(config)
-    
+
     print("🚀 Gitgeist is now watching your repository...")
     if config.autonomous_mode:
         print("🤖 Autonomous mode: Changes will be auto-committed")
     else:
         print("💡 Suggestion mode: Commit messages will be suggested")
     print("Press Ctrl+C to stop")
-    
+
     # Start watching
     try:
         await watcher.start_async()
@@ -52,6 +54,7 @@ async def main():
     except Exception as e:
         logger.error(f"Gitgeist crashed: {e}")
         raise
+
 
 if __name__ == "__main__":
     asyncio.run(main())
