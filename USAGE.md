@@ -116,7 +116,7 @@ Shows:
 - Languages detected
 - Change statistics
 
-### `gitgeist config`
+### `gitgeist config` 
 
 Manage configuration.
 

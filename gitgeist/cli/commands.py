@@ -17,8 +17,10 @@ from gitgeist.core.config import GitgeistConfig
 from gitgeist.core.git_handler import GitHandler
 from gitgeist.core.schema import validate_config
 from gitgeist.core.watcher import GitgeistWatcher
-from gitgeist.utils.exceptions import GitgeistError
+from gitgeist.utils.exceptions import GitgeistError, ValidationError
+from gitgeist.utils.error_handler import ErrorHandler, handle_errors
 from gitgeist.utils.logger import set_log_level, setup_logger
+from gitgeist.core.validator import ConfigValidator, GitValidator, SystemValidator
 
 app = typer.Typer(
     name="gitgeist",
@@ -37,6 +39,7 @@ def print_logo():
 
 
 @app.command()
+@handle_errors("Initialization")
 def init(
     autonomous: bool = typer.Option(
         False, "--autonomous", "-a", help="Enable autonomous mode"
@@ -55,11 +58,21 @@ def init(
     """Initialize Gitgeist in current repository"""
     print_logo()
 
-    # Check if we're in a git repository
-    git_handler = GitHandler()
-    if not git_handler.is_git_repo():
-        console.print("❌ Not a git repository. Run 'git init' first.", style="red")
+    # Validate inputs
+    ConfigValidator.validate_model_name(model)
+    ConfigValidator.validate_host_url(host)
+    ConfigValidator.validate_commit_style(style)
+    
+    # Check system dependencies
+    missing_deps = SystemValidator.validate_dependencies()
+    if missing_deps:
+        console.print(f"❌ Missing dependencies: {', '.join(missing_deps)}", style="red")
+        console.print("💡 Install with: pip install gitgeist[dev]", style="yellow")
         raise typer.Exit(1)
+    
+    # Validate git repository
+    GitValidator.validate_repository()
+    SystemValidator.validate_disk_space()
 
     # Create configuration
     config = GitgeistConfig(
@@ -134,6 +147,7 @@ Next steps:
 
 
 @app.command()
+@handle_errors("Watch mode")
 def watch():
     """Start watching repository for changes"""
     print_logo()
@@ -142,11 +156,8 @@ def watch():
         config = GitgeistConfig.load()
         setup_logger(config.log_file)
 
-        # Check git repository
-        git_handler = GitHandler()
-        if not git_handler.is_git_repo():
-            console.print("❌ Not a git repository", style="red")
-            raise typer.Exit(1)
+        # Validate git repository
+        GitValidator.validate_repository()
 
         watcher = GitgeistWatcher(config)
 
@@ -156,15 +167,10 @@ def watch():
 
         watcher.start()
 
-    except FileNotFoundError:
-        console.print(
-            "❌ No configuration found. Run 'gitgeist init' first.", style="red"
-        )
-        raise typer.Exit(1)
     except KeyboardInterrupt:
         console.print("\n👋 Stopped watching", style="yellow")
     except Exception as e:
-        console.print(f"❌ Error: {e}", style="red")
+        ErrorHandler.handle_error(e, "Watch mode")
         raise typer.Exit(1)
 
 
@@ -553,6 +559,13 @@ def config(
             )
 
 
+@app.command()
+def doctor():
+    """Diagnose and fix common Gitgeist issues"""
+    from gitgeist.cli.doctor import doctor_command
+    doctor_command()
+
+
 # Add version command
 @app.command()
 def version():
@@ -564,6 +577,7 @@ def version():
     console.print("  • Semantic code analysis (Tree-sitter)")
     console.print("  • Conventional commit generation")
     console.print("  • Real-time file watching")
+    console.print("  • RAG memory system")
     console.print("\n[dim]Repository:[/dim] https://github.com/gitgeistai/gitgeist-ai")
     console.print("[dim]License:[/dim] MIT")
 
