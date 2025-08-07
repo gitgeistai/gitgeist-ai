@@ -1,6 +1,7 @@
 # gitgeist/cli/commands.py
 import asyncio
 import json
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -227,10 +228,32 @@ def commit(
 
                 console.print(table)
 
+                # Initialize memory if needed for better suggestions
+                stats = generator.memory.get_memory_stats()
+                if stats['commits_stored'] == 0:
+                    progress.update(task, description="Loading git history for better suggestions...")
+                    generator.populate_memory_from_history(50)
+                
                 # Generate message preview
+                progress.update(task, description="Generating commit message...")
                 console.print("\n💡 [bold]Generated commit message:[/bold]")
                 commit_msg = await generator.generate_commit_message(message)
                 console.print(Panel(commit_msg, border_style="blue"))
+                
+                # Show RAG context if available
+                try:
+                    similar_commits = generator.memory.find_similar_commits(
+                        f"files: {', '.join([f['name'] for f in diff_summary['summary'].get('files', [])][:3])}", 
+                        limit=2
+                    )
+                    if similar_commits:
+                        console.print("\n🔍 [bold]Similar past commits:[/bold]")
+                        for commit in similar_commits:
+                            similarity = commit.get('similarity', 0)
+                            if similarity > 0.3:
+                                console.print(f"  • {commit['message']} (similarity: {similarity:.2f})")
+                except Exception:
+                    pass
 
             else:
                 # Generate and optionally commit
@@ -239,9 +262,16 @@ def commit(
                     TextColumn("[progress.description]{task.description}"),
                 ) as progress:
                     task = progress.add_task(
-                        "Generating intelligent commit message...", total=None
+                        "Initializing memory...", total=None
                     )
-
+                    
+                    # Initialize memory if needed
+                    stats = generator.memory.get_memory_stats()
+                    if stats['commits_stored'] == 0:
+                        progress.update(task, description="Loading git history into memory...")
+                        generator.populate_memory_from_history(50)
+                    
+                    progress.update(task, description="Generating intelligent commit message...")
                     result = await generator.generate_and_commit(
                         custom_message=message, auto_commit=auto
                     )
@@ -337,6 +367,14 @@ def status():
                 console.print(f"  • Commits stored: {stats['commits_stored']}")
                 console.print(f"  • Files tracked: {stats['files_tracked']}")
                 console.print(f"  • Database size: {stats['db_size_mb']:.1f} MB")
+                
+                # Initialize memory if empty
+                if stats['commits_stored'] == 0:
+                    console.print("  ℹ️  Initializing memory with git history...")
+                    generator = CommitGenerator(config)
+                    generator.populate_memory_from_history(50)
+                    console.print("  ✅ Memory initialized")
+                    
             except Exception as e:
                 console.print(f"\n🧠 [bold]Memory:[/bold] Not available ({e})")
 

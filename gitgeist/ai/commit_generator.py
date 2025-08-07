@@ -165,7 +165,7 @@ class CommitGenerator:
         return await self._generate_commit_message(prompt_context)
 
     async def _generate_commit_message(self, context: Dict) -> str:
-        """Generate commit message using LLM with rich context"""
+        """Generate commit message using LLM with rich context and RAG"""
 
         # Choose prompt template based on commit style
         if self.config.commit_style == "conventional":
@@ -175,8 +175,11 @@ class CommitGenerator:
         else:
             prompt_template = COMMIT_PROMPTS["default"]
 
-        # Build the prompt
+        # Build the prompt with RAG context
         semantic = context["semantic_summary"]
+        
+        # RAG: Find similar commits for context
+        rag_context = self._get_rag_context(context)
 
         prompt = prompt_template.format(
             total_files=semantic["total_files"],
@@ -203,6 +206,10 @@ class CommitGenerator:
             insertions=context["diff_stats"].get("insertions", 0),
             deletions=context["diff_stats"].get("deletions", 0),
         )
+        
+        # Add RAG context to prompt
+        if rag_context:
+            prompt += f"\n\nSimilar past commits for reference:\n{rag_context}"
 
         try:
             response = await self.llm_client.generate(prompt)
@@ -210,6 +217,9 @@ class CommitGenerator:
 
             # Post-process commit message
             commit_message = self._clean_commit_message(commit_message)
+
+            # Store this commit in memory for future RAG
+            self._store_commit_in_memory(commit_message, context)
 
             logger.info(f"Generated commit message: {commit_message}")
             return commit_message
@@ -260,6 +270,77 @@ class CommitGenerator:
                 message = first_line
 
         return message
+
+    def _get_rag_context(self, context: Dict) -> str:
+        """Get RAG context from similar historical commits"""
+        try:
+            # Build query from current changes
+            semantic = context["semantic_summary"]
+            files_changed = [f["path"] for f in context["file_details"]]
+            
+            query_parts = []
+            if semantic["functions_added"]:
+                query_parts.append(f"added functions: {', '.join(semantic['functions_added'][:3])}")
+            if semantic["classes_added"]:
+                query_parts.append(f"added classes: {', '.join(semantic['classes_added'][:2])}")
+            if files_changed:
+                query_parts.append(f"files: {', '.join(files_changed[:3])}")
+            
+            query = " | ".join(query_parts)
+            if not query:
+                return ""
+            
+            # Find similar commits
+            similar_commits = self.memory.find_similar_commits(query, limit=3)
+            
+            if not similar_commits:
+                return ""
+            
+            # Format for prompt
+            rag_lines = []
+            for commit in similar_commits:
+                similarity = commit.get('similarity', 0)
+                if similarity > 0.3:  # Only include reasonably similar commits
+                    rag_lines.append(f"- {commit['message']} (files: {', '.join(commit['files_changed'][:2])})")
+            
+            return "\n".join(rag_lines[:3])  # Max 3 examples
+            
+        except Exception as e:
+            logger.error(f"Failed to get RAG context: {e}")
+            return ""
+    
+    def _store_commit_in_memory(self, message: str, context: Dict) -> None:
+        """Store commit information in memory for future RAG"""
+        try:
+            # Get current commit hash (if this is after commit)
+            try:
+                result = subprocess.run(
+                    ["git", "rev-parse", "HEAD"],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                commit_hash = result.stdout.strip()
+            except:
+                # If no commit yet, use a temporary hash
+                commit_hash = f"temp_{datetime.now().isoformat()}"
+            
+            # Extract file changes and semantic changes
+            files_changed = [f["path"] for f in context["file_details"]]
+            semantic_changes = context["semantic_summary"]
+            
+            # Store in memory
+            self.memory.store_commit(
+                commit_hash=commit_hash,
+                message=message,
+                files_changed=files_changed,
+                semantic_changes=semantic_changes
+            )
+            
+            logger.debug(f"Stored commit in memory: {commit_hash[:8]}")
+            
+        except Exception as e:
+            logger.error(f"Failed to store commit in memory: {e}")
 
     def _fallback_commit_message(self, context: Dict) -> str:
         """Generate simple fallback commit message if LLM fails"""
@@ -337,6 +418,49 @@ class CommitGenerator:
             )
 
         return await self.generate_from_analyses(mock_analyses)
+
+    def populate_memory_from_history(self, limit: int = 50) -> None:
+        """Populate memory with existing git commit history"""
+        try:
+            # Get recent commits
+            result = subprocess.run(
+                ["git", "log", f"--max-count={limit}", "--pretty=format:%H|%s|%an|%ad", "--date=iso"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            for line in result.stdout.strip().split("\n"):
+                if not line:
+                    continue
+                    
+                parts = line.split("|", 3)
+                if len(parts) >= 2:
+                    commit_hash = parts[0]
+                    message = parts[1]
+                    
+                    # Get files changed in this commit
+                    files_result = subprocess.run(
+                        ["git", "show", "--name-only", "--pretty=format:", commit_hash],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    
+                    files_changed = [f for f in files_result.stdout.strip().split("\n") if f]
+                    
+                    # Store in memory (with minimal semantic analysis)
+                    self.memory.store_commit(
+                        commit_hash=commit_hash,
+                        message=message,
+                        files_changed=files_changed,
+                        semantic_changes={}  # Could enhance this with actual analysis
+                    )
+            
+            logger.info(f"Populated memory with {limit} historical commits")
+            
+        except Exception as e:
+            logger.error(f"Failed to populate memory from history: {e}")
 
     async def generate_and_commit(
         self, custom_message: Optional[str] = None, auto_commit: bool = False

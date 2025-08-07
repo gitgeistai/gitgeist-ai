@@ -9,6 +9,7 @@ RULES:
 - Keep first line under 72 characters
 - Be specific about WHAT changed, not just WHERE
 - Focus on the most significant change if multiple types exist
+- Learn from similar past commits shown below
 
 CODE CHANGES ANALYSIS:
 - Total files changed: {total_files} ({code_files} code files)
@@ -27,7 +28,7 @@ TEXT DIFF STATS:
 - Lines removed: -{deletions}
 
 Generate ONLY the commit message, no explanation:""",
-    "semantic": """Generate a semantic commit message that clearly describes the code changes. Focus on the functional impact, not just file changes.
+    "semantic": """Generate a semantic commit message that clearly describes the code changes. Focus on the functional impact, not just file changes. Learn from similar past commits if provided.
 
 ANALYSIS:
 - Files: {total_files} changed ({code_files} code files)
@@ -44,7 +45,7 @@ CHANGES BY FILE:
 STATS: +{insertions}/-{deletions} lines
 
 Write a clear, action-oriented commit message that explains what the code now does differently:""",
-    "default": """Generate a clear, concise Git commit message for these changes:
+    "default": """Generate a clear, concise Git commit message for these changes. Use similar past commits as reference if provided.
 
 Summary:
 - {total_files} files changed ({code_files} code files)
