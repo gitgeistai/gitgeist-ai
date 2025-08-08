@@ -1,0 +1,102 @@
+{
+  "name": "gitgeist-vscode",
+  "displayName": "Gitgeist AI",
+  "description": "AI-powered Git commit message generation",
+  "version": "0.1.0",
+  "publisher": "gitgeist",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers"
+  ],
+  "keywords": [
+    "git",
+    "commit",
+    "ai",
+    "automation"
+  ],
+  "activationEvents": [
+    "onCommand:gitgeist.generateCommit",
+    "onCommand:gitgeist.analyzeChanges"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gitgeist.generateCommit",
+        "title": "Generate AI Commit Message",
+        "category": "Gitgeist"
+      },
+      {
+        "command": "gitgeist.analyzeChanges",
+        "title": "Analyze Code Changes",
+        "category": "Gitgeist"
+      },
+      {
+        "command": "gitgeist.openSettings",
+        "title": "Open Settings",
+        "category": "Gitgeist"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "gitgeist.generateCommit",
+          "when": "scmProvider == git",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "gitgeist.generateCommit",
+          "when": "gitOpenRepositoryCount != 0"
+        },
+        {
+          "command": "gitgeist.analyzeChanges",
+          "when": "gitOpenRepositoryCount != 0"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Gitgeist",
+      "properties": {
+        "gitgeist.ollamaHost": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Ollama server host URL"
+        },
+        "gitgeist.model": {
+          "type": "string",
+          "default": "llama3.2",
+          "description": "LLM model to use"
+        },
+        "gitgeist.commitStyle": {
+          "type": "string",
+          "enum": ["conventional", "semantic", "default"],
+          "default": "conventional",
+          "description": "Commit message style"
+        },
+        "gitgeist.autoAnalyze": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically analyze changes on file save"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

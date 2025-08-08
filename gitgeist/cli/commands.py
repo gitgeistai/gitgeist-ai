@@ -28,6 +28,18 @@ app = typer.Typer(
     add_completion=False,
     rich_markup_mode="rich",
 )
+
+# Add workspace subcommand
+from gitgeist.cli.workspace_commands import workspace_app
+app.add_typer(workspace_app, name="workspace")
+
+# Add GitHub subcommand
+from gitgeist.cli.github_commands import github_app
+app.add_typer(github_app, name="github")
+
+# Add web subcommand
+from gitgeist.cli.web_commands import web_app
+app.add_typer(web_app, name="web")
 console = Console()
 
 
@@ -609,6 +621,43 @@ def doctor():
     doctor_command()
 
 
+@app.command()
+def workspace_status():
+    """Show multi-repository workspace status"""
+    from gitgeist.core.workspace import WorkspaceManager, MultiRepoCommitGenerator
+    
+    workspace = WorkspaceManager()
+    repositories = workspace.list_repositories()
+    
+    if not repositories:
+        console.print("No repositories in workspace. Add with: gitgeist workspace add <path>", style="yellow")
+        return
+    
+    multi_repo = MultiRepoCommitGenerator(workspace)
+    status = multi_repo.get_status_all_repositories()
+    
+    console.print("\n🏢 [bold]Workspace Status[/bold]")
+    
+    table = Table()
+    table.add_column("Repository", style="cyan")
+    table.add_column("Path", style="blue")
+    table.add_column("Changes", style="yellow")
+    table.add_column("Status", style="green")
+    
+    for alias, info in status.items():
+        path = info["path"]
+        if "error" in info:
+            changes = "Error"
+            status_text = "❌ Error"
+        else:
+            changes = str(info["changes"])
+            status_text = "✅ Clean" if info["clean"] else "⚠️ Modified"
+        
+        table.add_row(alias, path, changes, status_text)
+    
+    console.print(table)
+
+
 # Add version command
 @app.command()
 def version():
@@ -620,6 +669,10 @@ def version():
     console.print("  • Semantic code analysis (29+ languages)")
     console.print("  • RAG memory system with vector embeddings")
     console.print("  • Branch-aware commit strategies")
+    console.print("  • Multi-repository workspace support")
+    console.print("  • GitHub integration (PR/issues)")
+    console.print("  • Web dashboard for insights")
+    console.print("  • VS Code extension support")
     console.print("  • Performance optimization & caching")
     console.print("  • Customizable commit templates")
     console.print("  • Error handling & recovery")
