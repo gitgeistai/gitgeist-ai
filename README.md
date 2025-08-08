@@ -1,19 +1,38 @@
-# 🧠 Gitgeist - Autonomous AI Git Agent
+# 🧠 Gitgeist - AI-Powered Git Management Platform
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-0.3.0-green.svg)](https://github.com/gitgeistai/gitgeist-ai/releases)
+[![GitHub](https://img.shields.io/badge/GitHub-Integration-blue.svg)](https://github.com/features)
+[![VS Code](https://img.shields.io/badge/VS%20Code-Extension-purple.svg)](https://marketplace.visualstudio.com/vscode)
 
-Gitgeist is an intelligent, autonomous Git agent that uses local LLMs to understand your code changes semantically and generate meaningful commit messages automatically.
+Gitgeist is a comprehensive AI-powered Git management platform that revolutionizes how developers interact with version control. Using local LLMs and advanced semantic analysis, it provides intelligent commit generation, multi-repository management, GitHub integration, and team collaboration tools.
 
 ## ✨ Features
 
-- **🤖 Autonomous Commits**: Automatically commits changes with intelligent messages
-- **🧠 Semantic Understanding**: Uses AST parsing to understand what your code actually does
-- **💰 100% Free**: Uses local LLMs (Ollama) - no API costs
-- **🔒 Privacy First**: Everything runs locally, no data sent to cloud
-- **📝 Smart Messages**: Generates conventional commit messages based on actual code changes
-- **👀 File Watching**: Monitors your repository and commits changes automatically
-- **🎯 Language Support**: Python, JavaScript, TypeScript, and more
+### 🤖 AI-Powered Intelligence
+- **Semantic Code Analysis**: 29+ programming languages with Tree-sitter AST parsing
+- **RAG Memory System**: Learns from your commit history using vector embeddings
+- **Branch-Aware Commits**: Adapts commit styles based on branch patterns
+- **Smart Templates**: Context-aware commit message generation
+
+### 🏢 Multi-Repository Management
+- **Workspace Support**: Manage multiple repositories from a single interface
+- **Cross-Repo Operations**: Commit to all repositories simultaneously
+- **Repository Status Tracking**: Monitor changes across all projects
+- **Team Collaboration**: Shared workspace configurations
+
+### 🔗 Integrations & Extensions
+- **GitHub Integration**: Automated PR creation and issue management
+- **VS Code Extension**: Native IDE support for commit generation
+- **Web Dashboard**: Visual insights and real-time monitoring
+- **CLI Interface**: Comprehensive command-line tools
+
+### 🔒 Privacy & Performance
+- **100% Local Processing**: Uses local LLMs (Ollama) - no API costs
+- **Privacy First**: No data sent to cloud services
+- **Performance Optimization**: Intelligent caching and batch processing
+- **Error Recovery**: Comprehensive error handling and system repair
 
 ## 🚀 Quick Start
 
@@ -55,24 +74,50 @@ pip install -e ".[dev]"
 cd /path/to/your/project
 gitgeist init --autonomous --model llama3.2
 
-# Start watching (autonomous mode)
-gitgeist watch
+# Basic usage
+gitgeist commit --dry-run    # Preview commit
+gitgeist commit              # Interactive commit
+gitgeist commit --auto       # Auto-commit
 
-# Or generate single commit
-gitgeist commit
+# Multi-repository workspace
+gitgeist workspace add /path/to/repo
+gitgeist workspace commit-all
+
+# GitHub integration
+export GITHUB_TOKEN=your_token
+gitgeist github pr
+
+# Web dashboard
+gitgeist web start
 ```
 
 ## 📖 Usage
 
-### Commands
+### Core Commands
 
-- `gitgeist init` - Initialize Gitgeist in current repository
-- `gitgeist watch` - Start watching for changes
-- `gitgeist commit` - Generate and create a commit
-- `gitgeist status` - Show repository and Gitgeist status
+- `gitgeist init` - Initialize Gitgeist in repository
+- `gitgeist commit` - Generate and create intelligent commits
+- `gitgeist status` - Show comprehensive system status
 - `gitgeist analyze` - Analyze current changes
-- `gitgeist config` - Manage configuration
-- `gitgeist version` - Show version information
+- `gitgeist doctor` - Diagnose and fix system issues
+
+### Multi-Repository Management
+
+- `gitgeist workspace add <path>` - Add repository to workspace
+- `gitgeist workspace list` - List all repositories
+- `gitgeist workspace status` - Check status of all repos
+- `gitgeist workspace commit-all` - Commit to all repositories
+
+### GitHub Integration
+
+- `gitgeist github pr` - Create pull request from current branch
+- `gitgeist github issues` - List repository issues
+- `gitgeist github repo` - Show repository information
+
+### Web Dashboard
+
+- `gitgeist web start` - Launch web dashboard
+- Access at `http://localhost:8080` for visual insights
 
 ### Examples
 
@@ -136,11 +181,23 @@ Configuration is stored in `.gitgeist.json`:
 
 ## 🧠 How It Works
 
-1. **File Watching**: Monitors your repository for changes using Python's watchdog
-2. **AST Analysis**: Parses code using Tree-sitter to understand semantic changes
-3. **Change Detection**: Identifies functions/classes added, removed, or modified
-4. **LLM Generation**: Uses local Ollama LLM to generate meaningful commit messages
-5. **Auto Commit**: Optionally commits changes automatically in autonomous mode
+### 🔍 Semantic Analysis Pipeline
+1. **Language Detection**: Identifies 29+ programming languages automatically
+2. **AST Parsing**: Uses Tree-sitter for deep semantic code understanding
+3. **Change Detection**: Identifies functions, classes, and structural modifications
+4. **Context Building**: Aggregates changes across multiple files and languages
+
+### 🧠 AI-Powered Generation
+5. **RAG Memory**: Retrieves similar past commits using vector embeddings
+6. **Template Selection**: Chooses appropriate commit style based on branch patterns
+7. **LLM Generation**: Uses local Ollama with enhanced context for intelligent messages
+8. **Validation**: Ensures commit messages follow project conventions
+
+### 🚀 Multi-Repository Orchestration
+9. **Workspace Management**: Coordinates operations across multiple repositories
+10. **GitHub Integration**: Automates PR creation and issue management
+11. **Performance Optimization**: Caches results and processes files in parallel
+12. **Error Recovery**: Provides comprehensive diagnostics and auto-repair
 
 ## 🛠️ Development
 
@@ -210,14 +267,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Typer](https://typer.tiangolo.com/) for the CLI framework
 - [Rich](https://rich.readthedocs.io/) for beautiful terminal output
 
-## 🔮 Roadmap
+## 🎆 What's New in v0.3.0
 
-- [ ] RAG memory for better context understanding
-- [ ] GitHub integration for PR/issue management
-- [ ] VS Code extension
-- [ ] Multi-repository support
-- [ ] Team collaboration features
-- [ ] Web dashboard for commit insights
+### ✅ Completed Features
+- ✅ **RAG Memory System**: Vector embeddings for commit history learning
+- ✅ **GitHub Integration**: Automated PR creation and issue management
+- ✅ **VS Code Extension**: Native IDE support for commit generation
+- ✅ **Multi-Repository Support**: Workspace management for multiple projects
+- ✅ **Team Collaboration**: Shared configurations and cross-repo operations
+- ✅ **Web Dashboard**: Visual insights and real-time monitoring
+- ✅ **Performance Optimization**: Caching, batch processing, and parallel analysis
+- ✅ **Error Handling**: Comprehensive diagnostics and auto-repair system
+- ✅ **Branch Awareness**: Context-sensitive commit strategies
+- ✅ **29+ Language Support**: Comprehensive programming language detection
+
+### 🔮 Future Roadmap
+- [ ] Advanced team analytics and insights
+- [ ] Slack/Discord integration for team notifications
+- [ ] Custom LLM model fine-tuning
+- [ ] Advanced conflict resolution assistance
+- [ ] Mobile app for repository monitoring
+- [ ] Enterprise SSO and user management
 
 ---
 

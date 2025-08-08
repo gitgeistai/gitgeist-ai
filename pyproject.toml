@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gitgeist"
-version = "0.1.0"
-description = "Autonomous AI Git agent for intelligent code management"
+version = "0.3.0"
+description = "AI-Powered Git Management Platform with multi-repository support, GitHub integration, and intelligent commit generation"
 authors = [{name = "Gitgeist AI", email = "hello@gitgeist.ai"}]
 license = {text = "MIT"}
 readme = "README.md"
@@ -21,6 +21,15 @@ dependencies = [
     "rich>=13.0.0",
     "sentence-transformers>=2.2.0",
     "numpy>=1.21.0",
+]
+
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+]
+github = [
+    "aiohttp>=3.8.0",
 ]
 
 [project.optional-dependencies]

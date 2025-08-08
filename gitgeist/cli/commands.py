@@ -662,8 +662,8 @@ def workspace_status():
 @app.command()
 def version():
     """Show Gitgeist version and system info"""
-    console.print("🧠 [bold blue]Gitgeist[/bold blue] v0.2.0")
-    console.print("Autonomous AI Git Agent")
+    console.print("🧠 [bold blue]Gitgeist[/bold blue] v0.3.0")
+    console.print("AI-Powered Git Management Platform")
     console.print("\n[dim]Features:[/dim]")
     console.print("  • Local LLM integration (Ollama)")
     console.print("  • Semantic code analysis (29+ languages)")

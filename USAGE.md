@@ -1,31 +1,43 @@
 # 📖 Gitgeist Usage Guide
 
+**Version 0.3.0** - Complete AI-powered Git management platform
+
 ## Getting Started
 
 ### 1. First-time Setup
 
 ```bash
-# Make sure Ollama is running
+# Install Ollama and start server
+curl -fsSL https://ollama.ai/install.sh | sh
 ollama serve
+ollama pull llama3.2
 
-# Navigate to your project
+# Install Gitgeist
+pip install gitgeist
+
+# Initialize in your project
 cd /path/to/your/project
-
-# Initialize Gitgeist
 gitgeist init --autonomous --model llama3.2
 ```
 
 ### 2. Basic Workflow
 
 ```bash
-# Option 1: Watch mode (monitors files automatically)
-gitgeist watch
+# Single repository
+gitgeist commit --dry-run    # Preview
+gitgeist commit              # Interactive
+gitgeist commit --auto       # Auto-commit
 
-# Option 2: Manual commits
-gitgeist commit
+# Multi-repository workspace
+gitgeist workspace add /path/to/repo
+gitgeist workspace commit-all
 
-# Option 3: Preview without committing
-gitgeist commit --dry-run
+# GitHub integration
+gitgeist github pr           # Create PR
+gitgeist github issues       # List issues
+
+# Web dashboard
+gitgeist web start           # Launch dashboard
 ```
 
 ## Command Reference
@@ -131,6 +143,14 @@ gitgeist config --edit
 gitgeist config --reset
 ```
 
+### `gitgeist doctor`
+
+Diagnose and fix system issues.
+
+```bash
+gitgeist doctor
+```
+
 ### `gitgeist version`
 
 Show version and system information.
@@ -138,6 +158,70 @@ Show version and system information.
 ```bash
 gitgeist version
 ```
+
+## Multi-Repository Management
+
+### `gitgeist workspace`
+
+Manage multiple repositories in a workspace.
+
+```bash
+# Add repositories
+gitgeist workspace add /path/to/repo --alias myproject
+gitgeist workspace add /path/to/another/repo
+
+# List repositories
+gitgeist workspace list
+
+# Set active repository
+gitgeist workspace activate myproject
+
+# Check status of all repositories
+gitgeist workspace status
+
+# Commit to all repositories
+gitgeist workspace commit-all --message "feat: update all projects"
+```
+
+## GitHub Integration
+
+### `gitgeist github`
+
+Integrate with GitHub for PR and issue management.
+
+```bash
+# Set GitHub token (required for PR creation)
+export GITHUB_TOKEN=your_token_here
+
+# Create pull request from current branch
+gitgeist github pr --title "Add new feature" --body "Description"
+
+# List repository issues
+gitgeist github issues --state open
+
+# Show repository info
+gitgeist github repo
+```
+
+## Web Dashboard
+
+### `gitgeist web`
+
+Launch web dashboard for visual insights.
+
+```bash
+# Start dashboard (default: http://127.0.0.1:8080)
+gitgeist web start
+
+# Custom host and port
+gitgeist web start --host 0.0.0.0 --port 3000
+```
+
+Features:
+- System metrics and repository overview
+- Real-time status updates
+- Commit history visualization
+- Multi-repository monitoring
 
 ## Configuration
 
@@ -167,14 +251,39 @@ gitgeist version
 }
 ```
 
+### Workspace Configuration (`~/.gitgeist/workspace.json`)
+
+```json
+{
+  "version": "1.0",
+  "repositories": {
+    "myproject": {
+      "path": "/path/to/project",
+      "active": true,
+      "last_used": 1703123456
+    }
+  },
+  "global_settings": {}
+}
+```
+
 ### Environment Variables
 
-You can also configure Gitgeist using environment variables:
-
 ```bash
+# Core settings
 export GITGEIST_AUTO_COMMIT=true
 export GITGEIST_LLM_MODEL=llama3.2
 export GITGEIST_AUTONOMOUS=false
+
+# GitHub integration
+export GITHUB_TOKEN=your_github_token
+
+# Web dashboard
+export GITGEIST_WEB_HOST=0.0.0.0
+export GITGEIST_WEB_PORT=8080
+
+# Logging
+export GITGEIST_LOG_LEVEL=DEBUG
 ```
 
 ## Commit Styles
