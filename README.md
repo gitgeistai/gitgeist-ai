@@ -89,6 +89,7 @@ gitgeist github pr
 
 # Web dashboard
 gitgeist web start
+# Access at http://localhost:8080 for visual insights
 ```
 
 ## 📖 Usage

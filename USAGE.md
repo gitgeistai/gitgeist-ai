@@ -210,18 +210,25 @@ gitgeist github repo
 Launch web dashboard for visual insights.
 
 ```bash
-# Start dashboard (default: http://127.0.0.1:8080)
+# Start dashboard (default: http://localhost:8080)
 gitgeist web start
 
 # Custom host and port
 gitgeist web start --host 0.0.0.0 --port 3000
 ```
 
-Features:
+**Access URLs:**
+- Main dashboard: `http://localhost:8080/`
+- Repository metrics: `http://localhost:8080/metrics`
+- System status: `http://localhost:8080/status`
+
+**Features:**
 - System metrics and repository overview
 - Real-time status updates
 - Commit history visualization
 - Multi-repository monitoring
+- Performance analytics
+- Memory usage statistics
 
 ## Configuration
 
