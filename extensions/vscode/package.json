@@ -1,24 +1,41 @@
 {
   "name": "gitgeist-vscode",
-  "displayName": "Gitgeist AI",
-  "description": "AI-powered Git commit message generation",
-  "version": "0.1.0",
-  "publisher": "gitgeist",
+  "displayName": "Gitgeist - AI Git Assistant",
+  "description": "AI-powered Git commit generation using local LLMs. Generate intelligent commit messages with semantic code analysis.",
+  "version": "0.3.0",
+  "publisher": "gitgeistai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gitgeistai/gitgeist-ai.git"
+  },
+  "homepage": "https://github.com/gitgeistai/gitgeist-ai",
+  "bugs": {
+    "url": "https://github.com/gitgeistai/gitgeist-ai/issues"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Other",
-    "SCM Providers"
+    "SCM Providers",
+    "Machine Learning",
+    "Other"
   ],
   "keywords": [
     "git",
     "commit",
     "ai",
-    "automation"
+    "llm",
+    "ollama",
+    "semantic",
+    "automation",
+    "local",
+    "privacy"
   ],
+
   "activationEvents": [
     "onCommand:gitgeist.generateCommit",
+    "onCommand:gitgeist.quickCommit",
     "onCommand:gitgeist.analyzeChanges"
   ],
   "main": "./out/extension.js",
@@ -27,7 +44,14 @@
       {
         "command": "gitgeist.generateCommit",
         "title": "Generate AI Commit Message",
-        "category": "Gitgeist"
+        "category": "Gitgeist",
+        "icon": "$(robot)"
+      },
+      {
+        "command": "gitgeist.quickCommit",
+        "title": "Quick AI Commit",
+        "category": "Gitgeist",
+        "icon": "$(zap)"
       },
       {
         "command": "gitgeist.analyzeChanges",
@@ -46,11 +70,20 @@
           "command": "gitgeist.generateCommit",
           "when": "scmProvider == git",
           "group": "navigation"
+        },
+        {
+          "command": "gitgeist.quickCommit",
+          "when": "scmProvider == git",
+          "group": "navigation"
         }
       ],
       "commandPalette": [
         {
           "command": "gitgeist.generateCommit",
+          "when": "gitOpenRepositoryCount != 0"
+        },
+        {
+          "command": "gitgeist.quickCommit",
           "when": "gitOpenRepositoryCount != 0"
         },
         {
@@ -89,14 +122,15 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/vscode": "^1.74.0",
     "@types/node": "16.x",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "vsce": "^2.15.0"
   },
-  "dependencies": {
-    "axios": "^1.6.0"
-  }
+  "dependencies": {}
 }

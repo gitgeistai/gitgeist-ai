@@ -1,27 +1,226 @@
 import * as vscode from 'vscode';
-import { GitgeistProvider } from './gitgeistProvider';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export function activate(context: vscode.ExtensionContext) {
-    const provider = new GitgeistProvider();
+    console.log('🧠 Gitgeist extension activated!');
 
-    const generateCommitCommand = vscode.commands.registerCommand('gitgeist.generateCommit', async () => {
+    // Register commands
+    const commands = [
+        vscode.commands.registerCommand('gitgeist.generateCommit', generateCommitMessage),
+        vscode.commands.registerCommand('gitgeist.quickCommit', quickCommit),
+        vscode.commands.registerCommand('gitgeist.analyzeChanges', analyzeChanges),
+        vscode.commands.registerCommand('gitgeist.openSettings', openSettings)
+    ];
+
+    context.subscriptions.push(...commands);
+
+    // Show welcome message on first activation
+    const hasShownWelcome = context.globalState.get('gitgeist.hasShownWelcome', false);
+    if (!hasShownWelcome) {
+        showWelcomeMessage(context);
+    }
+}
+
+async function showWelcomeMessage(context: vscode.ExtensionContext) {
+    const action = await vscode.window.showInformationMessage(
+        '🧠 Welcome to Gitgeist! AI-powered Git commit generation is now available.',
+        'Get Started',
+        'View Documentation',
+        'Don\'t Show Again'
+    );
+
+    if (action === 'Get Started') {
+        vscode.commands.executeCommand('gitgeist.generateCommit');
+    } else if (action === 'View Documentation') {
+        vscode.env.openExternal(vscode.Uri.parse('https://github.com/gitgeistai/gitgeist-ai'));
+    }
+
+    if (action === 'Don\'t Show Again' || action) {
+        context.globalState.update('gitgeist.hasShownWelcome', true);
+    }
+}
+
+async function generateCommitMessage() {
+    const workspaceFolder = getWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "🧠 Generating AI commit message...",
+        cancellable: false
+    }, async (progress) => {
         try {
-            const message = await provider.generateCommitMessage();
-            if (message) {
-                const gitExtension = vscode.extensions.getExtension('vscode.git')?.exports;
-                const git = gitExtension?.getAPI(1);
-                
-                if (git && git.repositories.length > 0) {
-                    git.repositories[0].inputBox.value = message;
-                    vscode.window.showInformationMessage('✅ Commit message generated!');
-                }
+            progress.report({ message: "Checking installation..." });
+            await checkGitgeistInstallation(workspaceFolder.uri.fsPath);
+
+            progress.report({ message: "Analyzing changes..." });
+            const { stdout } = await execAsync('gitgeist commit --dry-run', { 
+                cwd: workspaceFolder.uri.fsPath 
+            });
+
+            const commitMessage = extractCommitMessage(stdout);
+            if (commitMessage) {
+                await showCommitDialog(commitMessage, workspaceFolder.uri.fsPath);
+            } else {
+                vscode.window.showErrorMessage('Failed to generate commit message');
             }
-        } catch (error) {
-            vscode.window.showErrorMessage(`Failed to generate commit: ${error}`);
+        } catch (error: any) {
+            handleError(error);
         }
     });
+}
 
-    context.subscriptions.push(generateCommitCommand);
+async function quickCommit() {
+    const workspaceFolder = getWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "⚡ Quick AI commit...",
+        cancellable: false
+    }, async (progress) => {
+        try {
+            progress.report({ message: "Generating and committing..." });
+            await execAsync('gitgeist commit --auto', { 
+                cwd: workspaceFolder.uri.fsPath 
+            });
+            vscode.window.showInformationMessage('✅ Quick commit created successfully!');
+        } catch (error: any) {
+            handleError(error);
+        }
+    });
+}
+
+async function analyzeChanges() {
+    const workspaceFolder = getWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "🔍 Analyzing repository changes...",
+        cancellable: false
+    }, async (progress) => {
+        try {
+            const { stdout } = await execAsync('gitgeist analyze', { 
+                cwd: workspaceFolder.uri.fsPath 
+            });
+            
+            const outputChannel = vscode.window.createOutputChannel('Gitgeist Analysis');
+            outputChannel.clear();
+            outputChannel.appendLine('🔍 Gitgeist Repository Analysis');
+            outputChannel.appendLine('================================\n');
+            outputChannel.appendLine(stdout);
+            outputChannel.show();
+            
+        } catch (error: any) {
+            handleError(error);
+        }
+    });
+}
+
+function openSettings() {
+    vscode.commands.executeCommand('workbench.action.openSettings', 'gitgeist');
+}
+
+// Helper functions
+function getWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+        vscode.window.showErrorMessage('No workspace folder found');
+        return undefined;
+    }
+    return workspaceFolder;
+}
+
+async function checkGitgeistInstallation(cwd: string) {
+    try {
+        await execAsync('gitgeist --version', { cwd });
+    } catch (error) {
+        const action = await vscode.window.showErrorMessage(
+            'Gitgeist not found. Please install it first.',
+            'Install Instructions',
+            'Open Terminal'
+        );
+        
+        if (action === 'Install Instructions') {
+            vscode.env.openExternal(vscode.Uri.parse('https://github.com/gitgeistai/gitgeist-ai#installation'));
+        } else if (action === 'Open Terminal') {
+            const terminal = vscode.window.createTerminal('Gitgeist Install');
+            terminal.sendText('pip install gitgeist');
+            terminal.show();
+        }
+        throw new Error('Gitgeist not installed');
+    }
+}
+
+function extractCommitMessage(output: string): string | null {
+    const patterns = [
+        /Generated commit message:\s*(.+)/s,
+        /💡.*Generated message:\s*(.+)/s,
+        /Commit message:\s*(.+)/s
+    ];
+    
+    for (const pattern of patterns) {
+        const match = output.match(pattern);
+        if (match) {
+            return match[1].trim().replace(/^["']|["']$/g, '');
+        }
+    }
+    return null;
+}
+
+async function showCommitDialog(commitMessage: string, cwd: string) {
+    const action = await vscode.window.showInformationMessage(
+        `🧠 Generated commit message:\n\n${commitMessage}`,
+        { modal: true },
+        'Commit',
+        'Copy to Clipboard',
+        'Edit Message'
+    );
+
+    if (action === 'Commit') {
+        try {
+            await execAsync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, { cwd });
+            vscode.window.showInformationMessage('✅ Commit created successfully!');
+        } catch (error: any) {
+            vscode.window.showErrorMessage(`Commit failed: ${error.message}`);
+        }
+    } else if (action === 'Copy to Clipboard') {
+        await vscode.env.clipboard.writeText(commitMessage);
+        vscode.window.showInformationMessage('📋 Commit message copied to clipboard!');
+    } else if (action === 'Edit Message') {
+        const editedMessage = await vscode.window.showInputBox({
+            value: commitMessage,
+            prompt: 'Edit the commit message',
+            placeHolder: 'Enter your commit message'
+        });
+        
+        if (editedMessage) {
+            await showCommitDialog(editedMessage, cwd);
+        }
+    }
+}
+
+function handleError(error: any) {
+    if (error.message.includes('gitgeist: command not found') || error.message.includes('Gitgeist not installed')) {
+        return;
+    } else if (error.message.includes('No configuration found')) {
+        vscode.window.showErrorMessage(
+            'Gitgeist not initialized. Run "gitgeist init" in terminal first.',
+            'Open Terminal'
+        ).then(action => {
+            if (action === 'Open Terminal') {
+                const terminal = vscode.window.createTerminal('Gitgeist Init');
+                terminal.sendText('gitgeist init');
+                terminal.show();
+            }
+        });
+    } else {
+        vscode.window.showErrorMessage(`Gitgeist error: ${error.message}`);
+    }
 }
 
 export function deactivate() {}

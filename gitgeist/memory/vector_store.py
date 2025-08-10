@@ -1,5 +1,6 @@
 # gitgeist/memory/vector_store.py
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -8,6 +9,9 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from gitgeist.utils.logger import get_logger
+
+# Suppress tokenizers parallelism warnings
+os.environ.setdefault('TOKENIZERS_PARALLELISM', 'false')
 
 logger = get_logger(__name__)
 
@@ -54,11 +58,24 @@ class GitgeistMemory:
                     semantic_changes: Dict) -> None:
         """Store commit information with vector embedding"""
         try:
+            # Convert sets to lists for JSON serialization
+            def convert_sets_to_lists(obj):
+                if isinstance(obj, dict):
+                    return {k: convert_sets_to_lists(v) for k, v in obj.items()}
+                elif isinstance(obj, set):
+                    return list(obj)
+                elif isinstance(obj, list):
+                    return [convert_sets_to_lists(item) for item in obj]
+                else:
+                    return obj
+            
+            serializable_changes = convert_sets_to_lists(semantic_changes)
+            
             # Create text for embedding
             text = f"{message} | Files: {', '.join(files_changed[:5])}"
-            if semantic_changes:
-                funcs = semantic_changes.get('functions_added', [])
-                classes = semantic_changes.get('classes_added', [])
+            if serializable_changes:
+                funcs = serializable_changes.get('functions_added', [])
+                classes = serializable_changes.get('classes_added', [])
                 if funcs:
                     text += f" | Functions: {', '.join(funcs[:3])}"
                 if classes:
@@ -76,7 +93,7 @@ class GitgeistMemory:
                     commit_hash,
                     message,
                     json.dumps(files_changed),
-                    json.dumps(semantic_changes),
+                    json.dumps(serializable_changes),
                     embedding.tobytes(),
                     __import__('time').time()
                 ))

@@ -1,0 +1,26 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#2D3748" stroke="#4A5568" stroke-width="2"/>
+  
+  <!-- Brain icon -->
+  <path d="M45 45 C35 45, 30 55, 35 65 C30 75, 40 85, 50 80 C55 85, 65 85, 70 80 C80 85, 90 75, 85 65 C90 55, 85 45, 75 45 C70 40, 60 40, 55 45 C50 40, 45 40, 45 45 Z" fill="#63B3ED" stroke="#3182CE" stroke-width="2"/>
+  
+  <!-- Git branch lines -->
+  <line x1="25" y1="95" x2="45" y2="75" stroke="#48BB78" stroke-width="3" stroke-linecap="round"/>
+  <line x1="45" y1="75" x2="65" y2="95" stroke="#48BB78" stroke-width="3" stroke-linecap="round"/>
+  <line x1="65" y1="95" x2="85" y2="75" stroke="#48BB78" stroke-width="3" stroke-linecap="round"/>
+  <line x1="85" y1="75" x2="105" y2="95" stroke="#48BB78" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Git nodes -->
+  <circle cx="25" cy="95" r="4" fill="#48BB78"/>
+  <circle cx="45" cy="75" r="4" fill="#48BB78"/>
+  <circle cx="65" cy="95" r="4" fill="#48BB78"/>
+  <circle cx="85" cy="75" r="4" fill="#48BB78"/>
+  <circle cx="105" cy="95" r="4" fill="#48BB78"/>
+  
+  <!-- AI sparkles -->
+  <circle cx="35" cy="35" r="2" fill="#F6E05E"/>
+  <circle cx="95" cy="35" r="2" fill="#F6E05E"/>
+  <circle cx="110" cy="50" r="1.5" fill="#F6E05E"/>
+  <circle cx="18" cy="50" r="1.5" fill="#F6E05E"/>
+</svg>

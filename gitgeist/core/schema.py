@@ -22,6 +22,10 @@ GITGEIST_SCHEMA = {
         "max_commit_frequency": {"type": "integer", "minimum": 1},
         "data_dir": {"type": "string"},
         "log_file": {"type": "string"},
+        "log_level": {
+            "type": "string",
+            "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]
+        },
     },
     "required": ["llm_model", "commit_style"],
     "additionalProperties": False,
