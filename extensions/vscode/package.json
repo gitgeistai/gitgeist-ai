@@ -32,6 +32,7 @@
     "local",
     "privacy"
   ],
+  "icon": "icon.png",
 
   "activationEvents": [
     "onCommand:gitgeist.generateCommit",

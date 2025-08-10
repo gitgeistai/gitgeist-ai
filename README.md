@@ -1,4 +1,7 @@
-# 🧠 Gitgeist - AI-Powered Git Management Platform
+<div align="center">
+  <img src="logo.png" alt="Gitgeist Logo" width="128" height="128">
+  <h1>🧠 Gitgeist - AI-Powered Git Management Platform</h1>
+</div>
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

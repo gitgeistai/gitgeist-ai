@@ -40,7 +40,10 @@ if FASTAPI_AVAILABLE:
         </head>
         <body>
             <div class="container">
-                <h1>🧠 Gitgeist Dashboard</h1>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <img src="/static/logo.png" alt="Gitgeist Logo" width="64" height="64" style="margin-bottom: 10px;">
+                    <h1>🧠 Gitgeist Dashboard</h1>
+                </div>
                 
                 <div class="card">
                     <h2>System Overview</h2>
