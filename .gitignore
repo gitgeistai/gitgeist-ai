@@ -64,6 +64,15 @@ Thumbs.db
 .gitgeist.json
 data/
 
+# Development files
+create_python_files.py
+run.py
+
+# VS Code extension
+extensions/vscode/node_modules/
+extensions/vscode/out/
+
 # Temporary files
 *.tmp
 *.temp
+*.bak
